@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">BookSearchAppUdacityAndroid</string>
+    <string name="WaitAMinute">Loading Search Results (May take a minute)...</string>
+    <string name="url1">https://www.googleapis.com/books/v1/volumes?q=</string>
+    <string name="url2"><![CDATA[&maxResults=12]]></string>
+    <string name="aBookHasAName">Please enter a book\'s name in the Search field.</string>
+    <string name="whyNoInternet">OMG - No Internet!</string>
+    <string name="noInternet">No Internet!</string>
+    <string name="GottaReConnect">Please reconnect to Internet and Try again.</string>
+    <string name="AsIs">currentState</string>
+    <string name="nothingToShow">No results found.</string>
+    <string name="items">items</string>
+    <string name="vol">volumeInfo</string>
+    <string name="title">title</string>
+    <string name="author">authors</string>
+    <string name="lineitem">; Author:</string>
+    <string name="againNothingToShow">No results found.</string>
+    <string name="justNothingToShow">No results found.</string>
+    <string name="escapechar">\\s+</string>
+    <string name="blankstr" />
+    <string name="AsItIs">currentState</string>
+</resources>
