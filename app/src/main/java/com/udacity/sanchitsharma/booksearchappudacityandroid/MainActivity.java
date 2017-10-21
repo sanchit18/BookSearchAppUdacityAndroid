@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         books = (ListView) findViewById(R.id.books);
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookdata);
+        books.setEmptyView(empty);
 
 
         button = (Button) findViewById(R.id.button);
@@ -162,66 +163,55 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-                try {
 
-                    JSONObject jsonObject = new JSONObject(result);
-                    if (jsonObject.has(getString(R.string.items)))
-                    {
+            try {
+
+                JSONObject jsonObject = new JSONObject(result);
+                if (jsonObject.has(getString(R.string.items))) {
                     String books = jsonObject.getString(getString(R.string.items));
 
                     JSONArray arr = new JSONArray(books);
 
 
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject jsonPart = arr.optJSONObject(i);
+
+                        JSONObject volumeInfo = jsonPart.optJSONObject(getString(R.string.vol));
+
+                        String title = volumeInfo.getString(getString(R.string.title));
+                        String authors = "";
 
 
-                        for (int i = 0; i < arr.length(); i++) {
-                            JSONObject jsonPart = arr.getJSONObject(i);
+                        try {
+                            JSONArray authorArr = volumeInfo.optJSONArray(getString(R.string.author));
+                            for (int x = 0; x < authorArr.length(); x++) {
 
-                            JSONObject volumeInfo = jsonPart.getJSONObject(getString(R.string.vol));
-
-                            String title = volumeInfo.getString(getString(R.string.title));
-                            String authors = "";
-
-
-                            try {
-                                JSONArray authorArr = volumeInfo.getJSONArray(getString(R.string.author));
-                                for (int x = 0; x < authorArr.length(); x++) {
-
-                                    authors += authorArr.get(x) + "    ";
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                authors += authorArr.get(x) + "    ";
                             }
-
-
-                            String book = title + getString(R.string.lineitem) + authors + ".";
-                            bookdata.add(book);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
 
+                        String book = title + getString(R.string.lineitem) + authors + ".";
+                        bookdata.add(book);
                     }
-                    else
-                    {
-                        Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
-                        empty.setText("Oops! No Results found for your search. Please try a different book's name...");
-                        empty.setVisibility(View.VISIBLE);
-                    }
+
+
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
+                    empty.setText("Oops! No Results found for your search. Please try a different book's name...");
+                    empty.setVisibility(View.VISIBLE);
                 }
-                     catch(JSONException e){
-                        e.printStackTrace();
-                        Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
-                    }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
+            }
 
 
             spinner.setVisibility(View.GONE);
             books.setAdapter(arrayAdapter);
             books.setVisibility(View.VISIBLE);
-
-
-
-
-
-
 
 
             super.onPostExecute(result);
