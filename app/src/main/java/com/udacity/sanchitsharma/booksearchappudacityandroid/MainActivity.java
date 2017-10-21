@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar spinner;
     private AlertDialog dialog;
     private int noresult = 0;
+    private TextView empty;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +52,14 @@ public class MainActivity extends AppCompatActivity {
         spinner = (ProgressBar) findViewById(R.id.progressBar);
         spinner.setVisibility(View.GONE);
         textView = (TextView) findViewById(R.id.SearchText);
+        empty = (TextView) findViewById(R.id.empty);
+        empty.setText("Please enter a book's name in the search bar and press Submit button.");
+        empty.setVisibility(View.VISIBLE);
+
 
         books = (ListView) findViewById(R.id.books);
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, bookdata);
-        books.setAdapter(arrayAdapter);
+
 
         button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -62,9 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
                 bookdata.clear();
                 String searchText = textView.getText().toString();
-                //System.out.println("Search Text " + searchText);
+                empty.setVisibility(View.INVISIBLE);
 
                 textView.setText("");
+                empty.setText("");
                 textView.clearFocus();
                 books.setVisibility(View.INVISIBLE);
                 if (isNetworkAvailable()) {
@@ -77,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
                         task.execute(url);
                     } else {
                         Toast.makeText(getApplicationContext(), R.string.aBookHasAName, Toast.LENGTH_LONG).show();
+                        empty.setText("Oops! You may have missed entering a book name in the search field. Please enter a name in the search bar and then press Submit button. Easy peasy!");
+                        empty.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.whyNoInternet, Toast.LENGTH_LONG).show();
@@ -142,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             if (bookdata == "") {
                 noresult = 1;
             }
-            return null;
+            return bookdata;
         }
 
         @Override
@@ -152,47 +161,69 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), R.string.nothingToShow, Toast.LENGTH_LONG).show();
             }
 
-            if (result != null) {
+
                 try {
+
                     JSONObject jsonObject = new JSONObject(result);
+                    if (jsonObject.has(getString(R.string.items)))
+                    {
                     String books = jsonObject.getString(getString(R.string.items));
 
                     JSONArray arr = new JSONArray(books);
 
-                    for (int i = 0; i < arr.length(); i++) {
-                        JSONObject jsonPart = arr.getJSONObject(i);
 
-                        JSONObject volumeInfo = jsonPart.getJSONObject(getString(R.string.vol));
 
-                        String title = volumeInfo.getString(getString(R.string.title));
-                        String authors = "";
-                        try {
-                            JSONArray authorArr = volumeInfo.getJSONArray(getString(R.string.author));
-                            for (int x = 0; x < authorArr.length(); x++) {
 
-                                authors += authorArr.get(x) + "    ";
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject jsonPart = arr.getJSONObject(i);
+
+                            JSONObject volumeInfo = jsonPart.getJSONObject(getString(R.string.vol));
+
+                            String title = volumeInfo.getString(getString(R.string.title));
+                            String authors = "";
+
+
+                            try {
+                                JSONArray authorArr = volumeInfo.getJSONArray(getString(R.string.author));
+                                for (int x = 0; x < authorArr.length(); x++) {
+
+                                    authors += authorArr.get(x) + "    ";
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+
+
+                            String book = title + getString(R.string.lineitem) + authors + ".";
+                            bookdata.add(book);
                         }
 
 
-                        String book = title + getString(R.string.lineitem) + authors + ".";
-                        bookdata.add(book);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
+                    else
+                    {
+                        Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
+                        empty.setText("Oops! No Results found for your search. Please try a different book's name...");
+                        empty.setVisibility(View.VISIBLE);
+                    }
                 }
+                     catch(JSONException e){
+                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(), R.string.againNothingToShow, Toast.LENGTH_LONG).show();
+                    }
 
-                spinner.setVisibility(View.GONE);
-                books.setAdapter(arrayAdapter);
-                books.setVisibility(View.VISIBLE);
+
+            spinner.setVisibility(View.GONE);
+            books.setAdapter(arrayAdapter);
+            books.setVisibility(View.VISIBLE);
 
 
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.justNothingToShow, Toast.LENGTH_LONG).show();
-            }
+
+
+
+
+
+
             super.onPostExecute(result);
         }
     }
